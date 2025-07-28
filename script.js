@@ -96,7 +96,80 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Function to handle form submission
+// Function to handle form submission with Formspree
+function handleFormspreeSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Show loading notification
+    showNotification('Đang gửi tin nhắn...', 'info');
+    
+    // Submit to Formspree
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showNotification('Tin nhắn đã được gửi thành công!', 'success');
+            form.reset();
+        } else {
+            showNotification('Có lỗi xảy ra khi gửi tin nhắn', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi gửi tin nhắn', 'error');
+    });
+}
+
+// Function to send email using mailto (legacy - kept for backup)
+function sendEmail(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+
+    // Validate form
+    if (!name || !email || !subject || !message) {
+        showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+        return;
+    }
+
+    // Create email body with formatted content
+    const emailBody = `Xin chào Phạm Hoàng Gia Bảo,
+
+Tôi là ${name} (${email}).
+
+${message}
+
+Trân trọng,
+${name}
+${email}`;
+
+    // Create mailto URL
+    const mailtoUrl = `mailto:pphamhoanggiabao19092004@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+    // Show success notification
+    showNotification('Đang mở email client...', 'success');
+
+    // Open default email client
+    window.location.href = mailtoUrl;
+
+    // Reset form after a short delay
+    setTimeout(() => {
+        document.getElementById('contactForm').reset();
+    }, 1000);
+}
+
+// Function to handle form submission (legacy - kept for compatibility)
 function handleSubmit(event) {
     event.preventDefault();
 
